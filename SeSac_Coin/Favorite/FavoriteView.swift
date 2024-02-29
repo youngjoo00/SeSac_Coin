@@ -13,7 +13,7 @@ final class FavoriteView: BaseView {
     private let titleLabel = TitleLabel().then {
         $0.text = "Favorite Coin"
     }
-    
+
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: configureCollectionViewLayout()).then {
         $0.backgroundColor = .clear
         $0.register(FavoriteCollectionViewCell.self, forCellWithReuseIdentifier: FavoriteCollectionViewCell.identifier)
@@ -43,6 +43,7 @@ final class FavoriteView: BaseView {
         
     }
 }
+
 
 // MARK: - Custom Func
 extension FavoriteView {

@@ -7,11 +7,7 @@
 
 import UIKit
 
-protocol Identifier {
-    static var identifier: String { get }
-}
-
-extension UIView: Identifier {
+extension UIView {
     static var identifier: String {
         get {
             return String(describing: self)

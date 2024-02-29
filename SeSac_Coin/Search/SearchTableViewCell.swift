@@ -16,11 +16,8 @@ protocol FavoriteBtnDelegate: AnyObject {
 final class SearchTableViewCell: BaseTableViewCell {
     
     private let coinImageView = UIImageView()
-    
     private let titleLabel = CellTitleLabel()
-    
     private let subTitleLabel = CellSubTitleLabel()
-    
     private let favoriteBtn = FavoriteButton()
     
     weak var delegate: FavoriteBtnDelegate?
@@ -64,6 +61,7 @@ final class SearchTableViewCell: BaseTableViewCell {
     }
 }
 
+
 // MARK: - Custom Func
 extension SearchTableViewCell {
     
@@ -72,7 +70,7 @@ extension SearchTableViewCell {
     }
     
     func updateView(_ data: Coin, searchText: String?) {
-        let url = URL(string: "\(data.thumb)")
+        let url = URL(string: data.thumb)
         coinImageView.kf.setImage(with: url)
         titleLabel.text = data.name
         subTitleLabel.text = data.symbol
@@ -82,6 +80,11 @@ extension SearchTableViewCell {
             titleLabel.attributedText = attributeString
         }
         
+        if data.favorite {
+            favoriteBtn.setImage(UIImage(resource: .btnStarFill), for: .normal)
+        } else {
+            favoriteBtn.setImage(UIImage(resource: .btnStar), for: .normal)
+        }
     }
     
     // 대소문자 구분 없이 검색한 키워드와 같은 경우 컬러 변경

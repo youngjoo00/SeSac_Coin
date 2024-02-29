@@ -1,13 +1,13 @@
 //
-//  CellSubTitleLabel.swift
+//  SeSacDarkGrayLabel.swift
 //  SeSac_Coin
 //
-//  Created by youngjoo on 2/28/24.
+//  Created by youngjoo on 2/29/24.
 //
 
 import UIKit
 
-final class CellSubTitleLabel: UILabel {
+final class SeSacLightBlackLabel: UILabel {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -19,13 +19,11 @@ final class CellSubTitleLabel: UILabel {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
 }
 
-extension CellSubTitleLabel {
+extension SeSacLightBlackLabel {
     
     func configureView() {
-        textColor = .sesacDarkGray
-        font = .boldSystemFont(ofSize: 15)
+        textColor = .sesacLightBlack
     }
 }

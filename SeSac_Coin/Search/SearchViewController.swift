@@ -14,8 +14,6 @@ final class SearchViewController: BaseViewController {
     
     private var list: [Coin] = []
     
-    let repository = CoinRepository()
-    
     override func loadView() {
         view = mainView
     }
@@ -28,6 +26,7 @@ final class SearchViewController: BaseViewController {
     }
     
 }
+
 
 // MARK: - Custom Func
 extension SearchViewController {
@@ -43,6 +42,10 @@ extension SearchViewController {
         viewModel.outputSearchList.bind { value in
             self.list = value
             self.mainView.tableView.reloadData()
+        }
+        
+        viewModel.outputFavoriteBtnReslut.bind { value in
+            self.showToast(message: value)
         }
     }
 }
@@ -68,28 +71,30 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("차트로 화면 이동")
+        let vc = ChartViewController()
+        vc.viewModel.inputCoinID.value = list[indexPath.row].id
+        
+        transition(viewController: vc, style: .push)
+    }
+}
+
+
+// MARK: - Custom Delegate
+extension SearchViewController: FavoriteBtnDelegate {
+    func updateFavoriteBtn(cell: UITableViewCell) {
+        if let indexPath = mainView.tableView.indexPath(for: cell) {
+            let item = list[indexPath.row].id
+            viewModel.inputFavoriteBtnTapped.value = item
+        }
     }
 }
 
 
 // MARK: - SearchBar
 extension SearchViewController: UISearchBarDelegate {
-    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         viewModel.inputSearchBarText.value = searchBar.text
     }
 }
 
-extension SearchViewController: FavoriteBtnDelegate {
-    func updateFavoriteBtn(cell: UITableViewCell) {
-        // 1. 우선 DB 에 값이 10개 이하인지 확인
-        // 2. 내 데이터베이스에서 있는지 확인하기
-        if let indexPath = mainView.tableView.indexPath(for: cell) {
-            let item = list[indexPath.row]
-            repository.createItem(item.id)
-        }
-    }
-    
-    
-}
+

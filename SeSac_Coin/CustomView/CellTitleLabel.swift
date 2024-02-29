@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CellTitleLabel: UILabel {
+final class CellTitleLabel: UILabel {
     
     override init(frame: CGRect) {
         super.init(frame: frame)

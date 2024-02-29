@@ -12,6 +12,7 @@ enum CoinGeckoAPI {
     case trending
     case search(query: String)
     case market(id: String)
+    case favorite(id: [String])
     
     static let baseURL = "https://api.coingecko.com/api/v3/"
     
@@ -22,6 +23,8 @@ enum CoinGeckoAPI {
         case .search(let query):
             return URL(string: CoinGeckoAPI.baseURL + "search?query=\(query)")!
         case .market:
+            return URL(string: CoinGeckoAPI.baseURL + "coins/markets")!
+        case .favorite:
             return URL(string: CoinGeckoAPI.baseURL + "coins/markets")!
         }
     }
@@ -34,6 +37,9 @@ enum CoinGeckoAPI {
             return [:]
         case .market(let id):
             return ["vs_currency": "krw", "ids": id, "sparkline": "true"]
+        case .favorite(let id):
+            let ids = id.joined(separator: ",")
+            return ["vs_currency": "krw", "ids": ids]
         }
     }
 }

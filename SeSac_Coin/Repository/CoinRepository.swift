@@ -8,7 +8,7 @@
 import Foundation
 import RealmSwift
 
-class CoinRepository {
+final class CoinRepository {
     
     let realm = try! Realm()
     
@@ -16,7 +16,7 @@ class CoinRepository {
         do {
             try realm.write {
                 realm.add(FavoriteCoin(coinID: coinID))
-                print("즐겨찾기 성공", realm.configuration.fileURL)
+                print("즐겨찾기 성공")
             }
         } catch {
             print("생성 에러: ", error)
@@ -24,7 +24,8 @@ class CoinRepository {
     }
     
     func fetchCoinID() -> [String] {
-        return Array(realm.objects(FavoriteCoin.self)).map { $0.coinID}
+        print(realm.configuration.fileURL)
+        return Array(fetchFavoriteCoin()).map { $0.coinID }
     }
     
     func deleteItem(_ item: FavoriteCoin) {
@@ -35,5 +36,14 @@ class CoinRepository {
         } catch {
             print("삭제 에러: ", error)
         }
+    }
+}
+
+
+// MARK: - Private
+extension CoinRepository {
+    
+    func fetchFavoriteCoin() -> Results<FavoriteCoin> {
+        return realm.objects(FavoriteCoin.self)
     }
 }

@@ -12,7 +12,7 @@ final class FavoriteViewController: BaseViewController {
     private let mainView = FavoriteView()
     private let viewModel = FavoriteViewModel()
     
-    var list: [FavoriteCoin] = []
+    var list: [Market] = []
     
     override func loadView() {
         view = mainView
@@ -25,7 +25,13 @@ final class FavoriteViewController: BaseViewController {
         bindData()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        viewModel.inputViewWillAppearTrigger.value = ()
+    }
 }
+
 
 // MARK: - Custom Func
 extension FavoriteViewController {
@@ -36,14 +42,13 @@ extension FavoriteViewController {
     }
     
     private func bindData() {
-        viewModel.inputViewDidLoadTrigger.value = ()
-        
         viewModel.outputList.bind { data in
             self.list = data
             self.mainView.collectionView.reloadData()
         }
     }
 }
+
 
 // MARK: - CollectionView
 extension FavoriteViewController: UICollectionViewDelegate, UICollectionViewDataSource {
@@ -54,13 +59,16 @@ extension FavoriteViewController: UICollectionViewDelegate, UICollectionViewData
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: FavoriteCollectionViewCell.identifier, for: indexPath) as! FavoriteCollectionViewCell
         
-        cell.coinImageView.image = UIImage(systemName: "star")
-        cell.titleLabel.text = "title"
-        cell.subTitleLabel.text = "subTitle"
-        cell.priceLabel.text = "200,000,000"
-        cell.percentageLabel.text = "+0.58%"
+        let data = list[indexPath.row]
+        cell.updateView(data)
+        
         return cell
     }
-    
-    
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let vc = ChartViewController()
+        vc.viewModel.inputCoinID.value = list[indexPath.row].id
+        
+        transition(viewController: vc, style: .push)
+    }
 }

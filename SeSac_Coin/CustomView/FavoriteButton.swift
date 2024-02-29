@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FavoriteButton: UIButton {
+final class FavoriteButton: UIButton {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -25,6 +25,5 @@ extension FavoriteButton {
     
     func configureView() {
         setImage(UIImage(resource: .btnStar), for: .normal) 
-        setImage(UIImage(resource: .btnStarFill), for: .normal)
     }
 }

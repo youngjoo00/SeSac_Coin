@@ -14,7 +14,8 @@ class BaseViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .white
-
+        self.navigationController?.navigationBar.tintColor = .sesacPuple
+        self.navigationController?.navigationBar.topItem?.title = ""
     }
 
     func showAlert(title: String, message: String, btnTitle: String, complectionHandler: @escaping () -> Void) {
