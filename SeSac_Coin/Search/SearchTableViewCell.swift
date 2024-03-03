@@ -69,7 +69,7 @@ extension SearchTableViewCell {
         delegate?.updateFavoriteBtn(cell: self)
     }
     
-    func updateView(_ data: Coin, searchText: String?) {
+    func updateView(_ data: Serach_Coin, searchText: String?) {
         let url = URL(string: data.thumb)
         coinImageView.kf.setImage(with: url)
         titleLabel.text = data.name

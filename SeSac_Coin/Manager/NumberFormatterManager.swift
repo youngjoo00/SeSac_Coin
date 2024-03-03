@@ -20,12 +20,7 @@ final class NumberFormatterManager {
 
     private init() { }
     
-    
-    func formatted<T: Numeric>(_ number: T) -> String? {
+    func formattedKRW<T: Numeric>(_ number: T) -> String? {
         return numberFormatter.string(from: number as! NSNumber)
-    }
-    
-    deinit {
-        print(#function, "deinit!")
     }
 }

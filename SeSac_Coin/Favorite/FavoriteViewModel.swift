@@ -11,32 +11,44 @@ final class FavoriteViewModel {
     
     let repository = CoinRepository()
     
-    var inputViewWillAppearTrigger: Observable<Void?> = Observable(nil)
+    var inputViewDidAppearTrigger: Observable<Void?> = Observable(nil)
     
     var outputList: Observable<[Market]> = Observable([])
+    var outputNetworkErrorMessage: Observable<String?> = Observable(nil)
+    var isLoding = Observable(false)
     
     init() {
         transform()
     }
     
     private func transform() {
-        inputViewWillAppearTrigger.bind { _ in
-            let id = self.repository.fetchCoinID()
-            guard !id.isEmpty else { return }
-            
-            self.fetchFavoriteCoinList(id) { data in
-                self.outputList.value = data
-            }
+        inputViewDidAppearTrigger.bind { _ in
+            self.getFavoriteList()
         }
     }
     
-    private func fetchFavoriteCoinList(_ id: [String], completionHandler: @escaping ([Market]) -> Void) {
-        CoinGeckoAPIManager.shared.callRequest(type: [Market].self, api: .favorite(id: id)) { data, error in
-            if let data {
-                completionHandler(data)
-            } else if let error {
-                print(error)
+}
+
+extension FavoriteViewModel {
+    
+    private func getFavoriteList() {
+        isLoding.value = true
+        
+        let id = self.repository.fetchCoinID()
+        if id.isEmpty {
+            self.outputList.value = []
+            isLoding.value = false
+        } else {
+            CoinGeckoAPIManager.shared.callRequest(type: [Market].self, api: .favorite(id: id)) { result in
+                switch result {
+                case .success(let data):
+                    self.outputList.value = data
+                case .failure(let failure):
+                    self.outputNetworkErrorMessage.value = failure.rawValue
+                }
             }
+            isLoding.value = false
         }
     }
+
 }

@@ -6,10 +6,10 @@
 //
 
 struct Search: Decodable {
-    let coins: [Coin]
+    let coins: [Serach_Coin]
 }
 
-struct Coin: Decodable {
+struct Serach_Coin: Decodable {
     let id: String
     let name: String
     let symbol: String

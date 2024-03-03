@@ -9,7 +9,7 @@ import Alamofire
 import Foundation
 
 enum CoinGeckoAPI {
-    case trending
+    case trend
     case search(query: String)
     case market(id: String)
     case favorite(id: [String])
@@ -18,8 +18,8 @@ enum CoinGeckoAPI {
     
     var endPoint: URL {
         switch self {
-        case .trending:
-            return URL(string: "")!
+        case .trend:
+            return URL(string: CoinGeckoAPI.baseURL + "search/trending")!
         case .search(let query):
             return URL(string: CoinGeckoAPI.baseURL + "search?query=\(query)")!
         case .market:
@@ -31,7 +31,7 @@ enum CoinGeckoAPI {
     
     var parameter: Parameters {
         switch self {
-        case .trending:
+        case .trend:
             return [:]
         case .search:
             return [:]

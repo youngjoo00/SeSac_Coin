@@ -19,7 +19,6 @@ final class TitleLabel: UILabel {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
 }
 
 extension TitleLabel {

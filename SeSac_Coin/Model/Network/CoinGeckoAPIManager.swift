@@ -13,7 +13,7 @@ final class CoinGeckoAPIManager {
     
     private init() { }
     
-    func callRequest<T: Decodable>(type: T.Type, api: CoinGeckoAPI, completionHandler: @escaping (T?, AFError?) -> Void) {
+    func callRequest<T: Decodable>(type: T.Type, api: CoinGeckoAPI, completionHandler: @escaping (_ result: Result<T, ErrorStatus>) -> Void) {
         AF.request(api.endPoint,
                    parameters: api.parameter,
                    encoding: URLEncoding(destination: .queryString))
@@ -21,11 +21,26 @@ final class CoinGeckoAPIManager {
         .responseDecodable(of: T.self) { response in
             switch response.result {
             case .success(let data):
-                completionHandler(data, nil)
+                completionHandler(.success(data))
             case .failure(let fail):
-                completionHandler(nil, fail)
+                switch fail {
+                case .responseValidationFailed:
+                    print("응답코드 에러")
+                    completionHandler(.failure(.invalidResponse))
+                case .responseSerializationFailed(let reason):
+                    if case .inputDataNilOrZeroLength = reason {
+                        print("데이터 없음")
+                        completionHandler(.failure(.noData))
+                    } else {
+                        print("디코딩 실패")
+                        completionHandler(.failure(.invalidData))
+                    }
+                default:
+                    print("통신 에러")
+                    completionHandler(.failure(.failedRequest))
+                }
             }
         }
     }
-
+    
 }

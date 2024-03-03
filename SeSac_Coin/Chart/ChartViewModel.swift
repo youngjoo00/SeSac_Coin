@@ -7,13 +7,20 @@
 
 import Foundation
 
-class ChartViewModel {
+final class ChartViewModel {
     
-    let repository = CoinRepository()
+    private let repository = CoinRepository()
     
-    let inputCoinID: Observable<String> = Observable("")
+    var inputViewDidAppearTrigger: Observable<Void?> = Observable(nil)
+    var inputCoinID: Observable<String?> = Observable(nil)
+    var inputFavoriteBtnTapped: Observable<Void?> = Observable(nil)
     
-    let outputList: Observable<[Market]> = Observable([])
+    var outputChartData: Observable<Market?> = Observable(nil)
+    var outputFavoriteBtnState = Observable(false)
+    var outputFavoriteBtnReslut: Observable<String?> = Observable(nil)
+    var outputNetworkErrorMessage: Observable<String?> = Observable(nil)
+    
+    var isLoading = Observable(false)
     
     init() {
         transform()
@@ -21,24 +28,45 @@ class ChartViewModel {
     
     private func transform() {
         
-        inputCoinID.bind { value in
-            let id = value
-            guard !id.isEmpty else { return }
-            
-            self.fetchFavoriteCoinList(id) { data in
-                self.outputList.value = data
+        inputViewDidAppearTrigger.bind { _ in
+            self.getChartData()
+        }
+        
+        inputFavoriteBtnTapped.bind { _ in
+            guard let id = self.inputCoinID.value else { return }
+            let chekcedCoinResult = self.repository.checkedCoinID(id)
+            self.outputFavoriteBtnReslut.value = chekcedCoinResult
+            self.outputFavoriteBtnState.value = self.checkedFavoriteBtn(id)
+        }
+    }
+}
+
+
+extension ChartViewModel {
+    
+    private func getChartData() {
+        isLoading.value = true
+        
+        guard let id = inputCoinID.value else {
+            return isLoading.value = false
+        }
+        
+        CoinGeckoAPIManager.shared.callRequest(type: [Market].self, api: .market(id: id)) { result in
+            switch result {
+            case .success(let data):
+                self.outputChartData.value = data.first
+                self.outputFavoriteBtnState.value = self.checkedFavoriteBtn(id)
+            case .failure(let failure):
+                self.outputNetworkErrorMessage.value = failure.rawValue
             }
+            self.isLoading.value = false
         }
     }
     
-    private func fetchFavoriteCoinList(_ id: String, completionHandler: @escaping ([Market]) -> Void) {
-        CoinGeckoAPIManager.shared.callRequest(type: [Market].self, api: .market(id: id)) { data, error in
-            if let data {
-                completionHandler(data)
-            } else if let error {
-                print(error)
-            }
-        }
+    private func checkedFavoriteBtn(_ id: String) -> Bool {
+        let ids = self.repository.fetchCoinID()
+        
+        return ids.contains(id) ? true : false
     }
     
 }

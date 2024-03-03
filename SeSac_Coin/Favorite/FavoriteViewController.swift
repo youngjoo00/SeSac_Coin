@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SVProgressHUD
 
 final class FavoriteViewController: BaseViewController {
     
@@ -22,13 +23,12 @@ final class FavoriteViewController: BaseViewController {
         super.viewDidLoad()
         
         configureView()
-        bindData()
+        bindViewModel()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        viewModel.inputViewWillAppearTrigger.value = ()
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel.inputViewDidAppearTrigger.value = ()
     }
 }
 
@@ -41,11 +41,26 @@ extension FavoriteViewController {
         mainView.collectionView.dataSource = self
     }
     
-    private func bindData() {
+    private func bindViewModel() {
+        
+        viewModel.isLoding.bind { isLoding in
+            if isLoding {
+                SVProgressHUD.show()
+            } else {
+                SVProgressHUD.dismiss()
+            }
+        }
+        
         viewModel.outputList.bind { data in
             self.list = data
             self.mainView.collectionView.reloadData()
         }
+        
+        viewModel.outputNetworkErrorMessage.bind { message in
+            guard let message else { return }
+            self.showToast(message: message)
+        }
+        
     }
 }
 

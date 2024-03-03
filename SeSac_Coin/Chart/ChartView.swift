@@ -11,45 +11,48 @@ import DGCharts
 
 final class ChartView: BaseView {
     
-    let coinImageView = UIImageView()
-    let titleLabel = TitleLabel()
-    let currentPriceLabel = TitleLabel().then {
+    private let coinImageView = UIImageView()
+    private let titleLabel = TitleLabel()
+    private let currentPriceLabel = TitleLabel().then {
         $0.font = .boldSystemFont(ofSize: 40)
     }
     
-    let percentageLabel = SeSacRedLabel()
-    let todayLabel = UILabel().then {
+    private let percentageLabel = SeSacColorLabel(color: .sesac_Red)
+    private let todayLabel = UILabel().then {
         $0.text = "Today"
         $0.textColor = .sesacDarkGray
     }
     
-    let highLabel = SeSacRedLabel().then {
+    private let highLabel = SeSacColorLabel(color: .sesac_Red).then {
         $0.text = "고가"
         $0.font = .boldSystemFont(ofSize: 20)
     }
-    let highPriceLabel = SeSacLightBlackLabel()
+    private let highPriceLabel = SeSacColorLabel(color: .sesac_LightBlack)
     
-    let lowLabel = SeSacBlueLabel().then {
+    private let lowLabel = SeSacColorLabel(color: .sesac_Blue).then {
         $0.text = "저가"
         $0.font = .boldSystemFont(ofSize: 20)
     }
     
-    let lowPriceLabel = SeSacLightBlackLabel()
-    let allTimeHighLabel = SeSacRedLabel().then {
+    private let lowPriceLabel = SeSacColorLabel(color: .sesac_LightBlack)
+    private let allTimeHighLabel = SeSacColorLabel(color: .sesac_Red).then {
         $0.text = "신고점"
         $0.font = .boldSystemFont(ofSize: 20)
     }
     
-    let allTimeHighPriceLabel = SeSacLightBlackLabel()
-    let allTimeLowLabel = SeSacBlueLabel().then {
+    private let allTimeHighPriceLabel = SeSacColorLabel(color: .sesac_LightBlack)
+    private let allTimeLowLabel = SeSacColorLabel(color: .sesac_Blue).then {
         $0.text = "신저점"
         $0.font = .boldSystemFont(ofSize: 20)
     }
     
-    let allTimeLowPriceLabel = SeSacLightBlackLabel()
+    private let allTimeLowPriceLabel = SeSacColorLabel(color: .sesac_LightBlack)
     
-    let chart = LineChartView()
-    let lastUpdateLabel = SeSacLightBlackLabel()
+    private let chart = LineChartView()
+    private let lastUpdateLabel = SeSacColorLabel(color: .sesac_DarkGray).then {
+        $0.font = .systemFont(ofSize: 15)
+    }
+    
     override func configureHierarchy() {
         [
             coinImageView,
@@ -149,8 +152,8 @@ final class ChartView: BaseView {
         
         chart.snp.makeConstraints { make in
             make.top.equalTo(allTimeHighPriceLabel.snp.bottom).offset(20)
-            make.horizontalEdges.equalTo(safeAreaLayoutGuide)
-            make.bottom.equalTo(lastUpdateLabel)
+            make.horizontalEdges.equalToSuperview()
+            make.bottom.equalTo(lastUpdateLabel.snp.top).offset(-10)
         }
         
         lastUpdateLabel.snp.makeConstraints { make in
@@ -178,17 +181,17 @@ extension ChartView {
         let manager = NumberFormatterManager.shared
         
         titleLabel.text = data.name
-        currentPriceLabel.text = manager.formatted(data.current_price)
-        percentageLabel.text = data.price_change_percentage_24h.formattedPercent
-        highPriceLabel.text = manager.formatted(data.high_24h)
-        lowPriceLabel.text = manager.formatted(data.low_24h)
-        allTimeHighPriceLabel.text = manager.formatted(data.ath)
-        allTimeLowPriceLabel.text = manager.formatted(data.atl)
+        currentPriceLabel.text = manager.formattedKRW(data.current_price)
+        percentageLabel.updatePercentage(data.price_change_percentage_24h)
+        highPriceLabel.text = manager.formattedKRW(data.high_24h)
+        lowPriceLabel.text = manager.formattedKRW(data.low_24h)
+        allTimeHighPriceLabel.text = manager.formattedKRW(data.ath)
+        allTimeLowPriceLabel.text = manager.formattedKRW(data.atl)
         lastUpdateLabel.text = DateFormatterManager.shared.dateFormat(date: data.last_updated)
         configureChart(data)
     }
     
-    func configureChart(_ data: Market) {
+    private func configureChart(_ data: Market) {
         guard let sparkline = data.sparkline_in_7d else { return }
         let datas = sparkline.price
         
@@ -202,14 +205,17 @@ extension ChartView {
         let set = LineChartDataSet(entries: lineChartEntry)
         set.colors = [.sesacPuple]
         set.highlightEnabled = false
+        set.lineWidth = 2
         set.circleRadius = 0
+        set.fillColor = .sesacPuple
+        set.fillAlpha = 0.5
+        set.drawFilledEnabled = true
         
         chart.rightAxis.enabled = false
         chart.leftAxis.enabled = false
         chart.xAxis.enabled = false
         chart.doubleTapToZoomEnabled = false
         chart.data = LineChartData(dataSet: set)
-        chart.animate(xAxisDuration: 1.0, yAxisDuration: 1.0)
         chart.legend.enabled = false
     }
 }

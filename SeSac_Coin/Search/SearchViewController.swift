@@ -6,13 +6,14 @@
 //
 
 import UIKit
+import SVProgressHUD
 
 final class SearchViewController: BaseViewController {
     
     private let mainView = SearchView()
     private let viewModel = SearchViewModel()
     
-    private var list: [Coin] = []
+    private var list: [Serach_Coin] = []
     
     override func loadView() {
         view = mainView
@@ -22,7 +23,7 @@ final class SearchViewController: BaseViewController {
         super.viewDidLoad()
         
         configureView()
-        bindData()
+        bindViewModel()
     }
     
 }
@@ -38,14 +39,29 @@ extension SearchViewController {
         mainView.searchBar.delegate = self
     }
     
-    private func bindData() {
+    private func bindViewModel() {
+        
+        viewModel.isLoading.bind { isLoding in
+            if isLoding {
+                SVProgressHUD.show()
+            } else {
+                SVProgressHUD.dismiss()
+            }
+        }
+        
         viewModel.outputSearchList.bind { value in
             self.list = value
             self.mainView.tableView.reloadData()
         }
         
-        viewModel.outputFavoriteBtnReslut.bind { value in
-            self.showToast(message: value)
+        viewModel.outputFavoriteBtnReslut.bind { message in
+            guard let message else { return }
+            self.showToast(message: message)
+        }
+        
+        viewModel.outputNetworkErrorMessage.bind { message in
+            guard let message else { return }
+            self.showToast(message: message)
         }
     }
 }
@@ -73,7 +89,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = ChartViewController()
         vc.viewModel.inputCoinID.value = list[indexPath.row].id
-        
         transition(viewController: vc, style: .push)
     }
 }
