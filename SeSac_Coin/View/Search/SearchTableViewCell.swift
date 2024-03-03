@@ -10,7 +10,7 @@ import Then
 import Kingfisher
 
 protocol FavoriteBtnDelegate: AnyObject {
-    func updateFavoriteBtn(cell: UITableViewCell)
+    func updateFavoriteBtn(index: Int)
 }
 
 final class SearchTableViewCell: BaseTableViewCell {
@@ -21,6 +21,7 @@ final class SearchTableViewCell: BaseTableViewCell {
     private let favoriteBtn = FavoriteButton()
     
     weak var delegate: FavoriteBtnDelegate?
+    var index = 0
     
     override func configureHierarchy() {
         [
@@ -41,8 +42,10 @@ final class SearchTableViewCell: BaseTableViewCell {
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(coinImageView)
             make.leading.equalTo(coinImageView.snp.trailing).offset(16)
+            make.trailing.lessThanOrEqualTo(favoriteBtn.snp.leading).offset(-10)
             make.height.equalTo(18)
         }
+        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
         subTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(5)
@@ -54,6 +57,7 @@ final class SearchTableViewCell: BaseTableViewCell {
             make.centerY.equalTo(contentView)
             make.trailing.equalTo(contentView).offset(-16)
         }
+        favoriteBtn.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
     }
     
     override func configureView() {
@@ -66,7 +70,7 @@ final class SearchTableViewCell: BaseTableViewCell {
 extension SearchTableViewCell {
     
     @objc func didFavoriteBtnTapped() {
-        delegate?.updateFavoriteBtn(cell: self)
+        delegate?.updateFavoriteBtn(index: index)
     }
     
     func updateView(_ data: Serach_Coin, searchText: String?) {

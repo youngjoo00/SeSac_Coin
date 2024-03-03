@@ -39,6 +39,8 @@ extension FavoriteViewController {
     private func configureView() {
         mainView.collectionView.delegate = self
         mainView.collectionView.dataSource = self
+        
+        configureRefreshControl()
     }
     
     private func bindViewModel() {
@@ -52,15 +54,46 @@ extension FavoriteViewController {
         }
         
         viewModel.outputList.bind { data in
+            self.mainView.blockView.isHidden = true
             self.list = data
             self.mainView.collectionView.reloadData()
         }
         
         viewModel.outputNetworkErrorMessage.bind { message in
             guard let message else { return }
-            self.showToast(message: message)
+            
+            self.mainView.blockView.isHidden = false
+            self.mainView.blockView.retryBtn.addTarget(self, action: #selector(self.didRetryBtnTapped), for: .touchUpInside)
+            
+            self.showAlert(title: "오류!", message: message, btnTitle: "재시도") {
+                self.viewModel.inputViewDidAppearTrigger.value = ()
+            }
         }
         
+        viewModel.outputTransition.bind { id in
+            guard let id else { return }
+            let vc = ChartViewController()
+            vc.viewModel.inputCoinID.value = id
+            self.transition(viewController: vc, style: .push)
+        }
+    }
+    
+    private func configureRefreshControl() {
+        mainView.collectionView.refreshControl = UIRefreshControl()
+        mainView.collectionView.refreshControl?.addTarget(self, action: #selector(handleRefreshData), for: .valueChanged)
+        mainView.collectionView.refreshControl?.attributedTitle = NSAttributedString(string: "코인 정보 캐오는 중...")
+    }
+    
+    @objc private func handleRefreshData(_ sender: UIRefreshControl) {
+        viewModel.inputViewDidAppearTrigger.value = ()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            sender.endRefreshing()
+        }
+    }
+    
+    @objc private func didRetryBtnTapped() {
+        viewModel.inputViewDidAppearTrigger.value = ()
     }
 }
 
@@ -81,9 +114,6 @@ extension FavoriteViewController: UICollectionViewDelegate, UICollectionViewData
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let vc = ChartViewController()
-        vc.viewModel.inputCoinID.value = list[indexPath.row].id
-        
-        transition(viewController: vc, style: .push)
+        viewModel.inputDidSelectItemAtCoinID.value = list[indexPath.row].id
     }
 }

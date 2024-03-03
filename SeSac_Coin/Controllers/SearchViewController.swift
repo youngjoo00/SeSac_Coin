@@ -26,6 +26,11 @@ final class SearchViewController: BaseViewController {
         bindViewModel()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        viewModel.inputViewWillAppearTrigger.value = ()
+    }
 }
 
 
@@ -37,6 +42,9 @@ extension SearchViewController {
         mainView.tableView.dataSource = self
         
         mainView.searchBar.delegate = self
+        
+        configureTapGesture()
+        
     }
     
     private func bindViewModel() {
@@ -61,8 +69,28 @@ extension SearchViewController {
         
         viewModel.outputNetworkErrorMessage.bind { message in
             guard let message else { return }
-            self.showToast(message: message)
+            
+            self.showAlert(title: "오류!", message: message, btnTitle: "재시도") {
+                self.searchBarSearchButtonClicked(self.mainView.searchBar)
+            }
         }
+        
+        viewModel.outputTransition.bind { id in
+            guard let id else { return }
+            let vc = ChartViewController()
+            vc.viewModel.inputCoinID.value = id
+            self.transition(viewController: vc, style: .push)
+        }
+    }
+    
+    private func configureTapGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(keyboardDisMiss))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func keyboardDisMiss() {
+        view.endEditing(true)
     }
 }
 
@@ -79,6 +107,7 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
         let data = list[indexPath.row]
         cell.updateView(data, searchText: viewModel.inputSearchBarText.value)
         cell.delegate = self
+        cell.index = indexPath.row
         return cell
     }
     
@@ -87,28 +116,23 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let vc = ChartViewController()
-        vc.viewModel.inputCoinID.value = list[indexPath.row].id
-        transition(viewController: vc, style: .push)
+        viewModel.inputDidSelectRowAtCoinID.value = list[indexPath.row].id
     }
 }
 
 
 // MARK: - Custom Delegate
 extension SearchViewController: FavoriteBtnDelegate {
-    func updateFavoriteBtn(cell: UITableViewCell) {
-        if let indexPath = mainView.tableView.indexPath(for: cell) {
-            let item = list[indexPath.row].id
-            viewModel.inputFavoriteBtnTapped.value = item
-        }
+    func updateFavoriteBtn(index: Int) {
+        viewModel.inputFavoriteBtnTapped.value = list[index].id
     }
 }
-
 
 // MARK: - SearchBar
 extension SearchViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         viewModel.inputSearchBarText.value = searchBar.text
+        view.endEditing(true)
     }
 }
 

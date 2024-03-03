@@ -12,7 +12,7 @@ final class ChartViewController: BaseViewController {
     
     let mainView = ChartView()
     let viewModel = ChartViewModel()
-        
+    
     override func loadView() {
         view = mainView
     }
@@ -28,6 +28,12 @@ final class ChartViewController: BaseViewController {
         super.viewDidAppear(animated)
         
         viewModel.inputViewDidAppearTrigger.value = ()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        
     }
 }
 
@@ -47,7 +53,19 @@ extension ChartViewController {
         
         viewModel.outputNetworkErrorMessage.bind { message in
             guard let message else { return }
+            
+            let blockView = UIView(frame: self.view.bounds)
+            blockView.backgroundColor = UIColor.white.withAlphaComponent(0.5)
+            self.view.addSubview(blockView)
+            
+            self.navigationController?.navigationBar.isUserInteractionEnabled = false
+            
             self.showToast(message: message)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                self.navigationController?.popViewController(animated: true)
+                self.navigationController?.navigationBar.isUserInteractionEnabled = true
+            }
         }
         
         viewModel.outputChartData.bind { data in
@@ -68,7 +86,7 @@ extension ChartViewController {
         }
     }
     
-    @objc func didRightBarButtonItemTapped() {
+    @objc private func didRightBarButtonItemTapped() {
         viewModel.inputFavoriteBtnTapped.value = ()
     }
     
@@ -77,12 +95,4 @@ extension ChartViewController {
         
         navigationItem.rightBarButtonItem = rightBtnItem
     }
-}
-
-extension ChartViewController: FavoriteBtnDelegate {
-    func updateFavoriteBtn(cell: UITableViewCell) {
-        
-    }
-    
-    
 }

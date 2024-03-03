@@ -10,27 +10,27 @@ import Then
 
 final class RankCollectionViewCell: BaseCollectionViewCell {
     
-    let rankLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
+    private let rankLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
         $0.font = .boldSystemFont(ofSize: 20)
     }
-    let coinImageView = UIImageView()
-    let titleLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
+    private let coinImageView = UIImageView()
+    private let titleLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
         $0.font = .boldSystemFont(ofSize: 18)
     }
     
-    let subTitleLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
+    private let subTitleLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
         $0.font = .systemFont(ofSize: 16)
     }
     
-    let priceLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
+    private let priceLabel = SeSacColorLabel(color: .sesac_LightBlack).then {
         $0.font = .boldSystemFont(ofSize: 17)
     }
     
-    let percentageLabel = SeSacColorLabel().then {
+    private let percentageLabel = SeSacColorLabel().then {
         $0.font = .systemFont(ofSize: 16)
     }
     
-    let lineView = UIView().then {
+    private let lineView = UIView().then {
         $0.backgroundColor = .sesacLightGray
     }
     

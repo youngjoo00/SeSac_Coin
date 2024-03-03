@@ -19,10 +19,13 @@ final class FavoriteView: BaseView {
         $0.register(FavoriteCollectionViewCell.self, forCellWithReuseIdentifier: FavoriteCollectionViewCell.identifier)
     }
     
+    let blockView = BlockView()
+    
     override func configureHierarchy() {
         [
             titleLabel,
             collectionView,
+            blockView,
         ].forEach { addSubview($0) }
     }
     
@@ -36,6 +39,10 @@ final class FavoriteView: BaseView {
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom)
             make.horizontalEdges.bottom.equalTo(safeAreaLayoutGuide)
+        }
+        
+        blockView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
     

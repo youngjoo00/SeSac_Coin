@@ -20,10 +20,13 @@ final class TrendView: BaseView {
         $0.separatorStyle = .none
     }
     
+    let blockView = BlockView()
+
     override func configureHierarchy() {
         [
             titleLabel,
             tableView,
+            blockView,
         ].forEach { addSubview($0) }
     }
     
@@ -37,6 +40,10 @@ final class TrendView: BaseView {
         tableView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(20)
             make.horizontalEdges.bottom.equalTo(safeAreaLayoutGuide)
+        }
+        
+        blockView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
     

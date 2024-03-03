@@ -26,7 +26,7 @@ final class SearchView: BaseView {
         $0.register(SearchTableViewCell.self, forCellReuseIdentifier: SearchTableViewCell.identifier)
         $0.separatorStyle = .none
     }
-    
+        
     override func configureHierarchy() {
         [
             titleLabel,
@@ -51,6 +51,7 @@ final class SearchView: BaseView {
             make.top.equalTo(searchBar.snp.bottom)
             make.horizontalEdges.bottom.equalTo(safeAreaLayoutGuide)
         }
+        
     }
     
     override func configureView() {

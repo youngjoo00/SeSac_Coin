@@ -12,9 +12,11 @@ final class FavoriteViewModel {
     let repository = CoinRepository()
     
     var inputViewDidAppearTrigger: Observable<Void?> = Observable(nil)
+    var inputDidSelectItemAtCoinID: Observable<String?> = Observable(nil)
     
     var outputList: Observable<[Market]> = Observable([])
     var outputNetworkErrorMessage: Observable<String?> = Observable(nil)
+    var outputTransition: Observable<String?> = Observable(nil)
     var isLoding = Observable(false)
     
     init() {
@@ -24,6 +26,11 @@ final class FavoriteViewModel {
     private func transform() {
         inputViewDidAppearTrigger.bind { _ in
             self.getFavoriteList()
+        }
+        
+        inputDidSelectItemAtCoinID.bind { id in
+            guard let id else { return }
+            self.outputTransition.value = id
         }
     }
     

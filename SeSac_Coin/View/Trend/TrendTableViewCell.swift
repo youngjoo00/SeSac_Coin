@@ -16,6 +16,7 @@ class TrendTableViewCell: BaseTableViewCell {
     let favoriteCollectionView = UICollectionView(frame: .zero, collectionViewLayout: configureFavoriteCollectionViewLayout()).then {
         $0.backgroundColor = .clear
         $0.register(TrendFavortieCollectionViewCell.self, forCellWithReuseIdentifier: TrendFavortieCollectionViewCell.identifier)
+        $0.register(TrendFavortieMoreCollectionViewCell.self, forCellWithReuseIdentifier: TrendFavortieMoreCollectionViewCell.identifier)
         $0.showsHorizontalScrollIndicator = false
     }
     

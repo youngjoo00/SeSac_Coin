@@ -11,13 +11,15 @@ final class SearchViewModel {
     
     private let repository = CoinRepository()
     
+    var inputViewWillAppearTrigger: Observable<Void?> = Observable(nil)
     var inputSearchBarText: Observable<String?> = Observable(nil)
     var inputFavoriteBtnTapped: Observable<String?> = Observable(nil)
+    var inputDidSelectRowAtCoinID: Observable<String?> = Observable(nil)
     
     var outputSearchList: Observable<[Serach_Coin]> = Observable([])
     var outputFavoriteBtnReslut: Observable<String?> = Observable(nil)
     var outputNetworkErrorMessage: Observable<String?> = Observable(nil)
-    
+    var outputTransition: Observable<String?> = Observable(nil)
     var isLoading = Observable(false)
     
     init() {
@@ -36,8 +38,23 @@ final class SearchViewModel {
             self.outputFavoriteBtnReslut.value = chekcedCoinResult
             self.outputSearchList.value = self.updateFavorite(self.outputSearchList.value)
         }
+        
+        inputViewWillAppearTrigger.bind { _ in
+            let coins = self.outputSearchList.value
+            if !(coins.isEmpty) {
+                self.outputSearchList.value = self.updateFavorite(coins)
+            }
+        }
+        
+        inputDidSelectRowAtCoinID.bind { id in
+            guard let id else { return }
+            self.outputTransition.value = id
+        }
     }
+    
+    
 }
+
 
 extension SearchViewModel {
     

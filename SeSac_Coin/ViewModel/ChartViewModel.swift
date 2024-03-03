@@ -19,10 +19,10 @@ final class ChartViewModel {
     var outputFavoriteBtnState = Observable(false)
     var outputFavoriteBtnReslut: Observable<String?> = Observable(nil)
     var outputNetworkErrorMessage: Observable<String?> = Observable(nil)
-    
     var isLoading = Observable(false)
     
     init() {
+        
         transform()
     }
     

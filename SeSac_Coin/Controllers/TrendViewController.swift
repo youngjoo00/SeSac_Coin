@@ -10,10 +10,10 @@ import SVProgressHUD
 
 final class TrendViewController: BaseViewController {
     
-    let mainView = TrendView()
-    let viewModel = TrendViewModel()
+    private let mainView = TrendView()
+    private let viewModel = TrendViewModel()
     
-    var dataList: [[Any]] = [Array(repeating: [], count: TrendSection.allCases.count)]
+    private var dataList: [[Any]] = [Array(repeating: [], count: TrendSection.allCases.count)]
     
     override func loadView() {
         view = mainView
@@ -52,14 +52,37 @@ extension TrendViewController {
         }
         
         viewModel.dataList.bind { _ in
+            self.mainView.blockView.isHidden = true
             self.dataList = self.viewModel.dataList.value
             self.mainView.tableView.reloadData()
         }
         
-        viewModel.outputNetworkErrorMessage.bind { error in
-            guard let error else { return }
-            self.showToast(message: error)
+        viewModel.outputNetworkErrorMessage.bind { message in
+            guard let message else { return }
+                
+            self.mainView.blockView.isHidden = false
+            self.mainView.blockView.retryBtn.addTarget(self, action: #selector(self.didRetryBtnTapped), for: .touchUpInside)
+
+            self.showAlert(title: "오류!", message: message, btnTitle: "재시도") {
+                self.viewModel.inputViewDidAppearTrigger.value = ()
+            }
         }
+        
+
+        viewModel.outputTransition.bind { id in
+            guard let id else { return }
+            if id == "more" {
+                self.tabBarController?.selectedIndex = 2
+            } else {
+                let vc = ChartViewController()
+                vc.viewModel.inputCoinID.value = id
+                self.transition(viewController: vc, style: .push)
+            }
+        }
+    }
+    
+    @objc private func didRetryBtnTapped() {
+        viewModel.inputViewDidAppearTrigger.value = ()
     }
 }
 
@@ -72,7 +95,7 @@ extension TrendViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        return viewModel.numberOfRowsInSection()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -101,11 +124,7 @@ extension TrendViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section == 0 {
-            return dataList[indexPath.section].count >= 2 ? 230 : 0
-        } else {
-            return 300
-        }
+        return viewModel.heightForRowAt(indexPath)
     }
 }
 
@@ -120,13 +139,18 @@ extension TrendViewController: UICollectionViewDelegate, UICollectionViewDataSou
         let data = dataList[collectionView.tag][indexPath.item]
         
         if collectionView.tag == 0 {
-            let favoriteCell = collectionView.dequeueReusableCell(withReuseIdentifier: TrendFavortieCollectionViewCell.identifier, for: indexPath) as! TrendFavortieCollectionViewCell
-            
-            if let data = data as? Market {
-                favoriteCell.updateView(data)
+            if indexPath.item < 3 {
+                let favoriteCell = collectionView.dequeueReusableCell(withReuseIdentifier: TrendFavortieCollectionViewCell.identifier, for: indexPath) as! TrendFavortieCollectionViewCell
+                
+                if let data = data as? Market {
+                    favoriteCell.updateView(data)
+                }
+                
+                return favoriteCell
+            } else {
+                let favoriteMoreCell = collectionView.dequeueReusableCell(withReuseIdentifier: TrendFavortieMoreCollectionViewCell.identifier, for: indexPath) as! TrendFavortieMoreCollectionViewCell
+                return favoriteMoreCell
             }
-            
-            return favoriteCell
         } else {
             let rankCell = collectionView.dequeueReusableCell(withReuseIdentifier: RankCollectionViewCell.identifier, for: indexPath) as! RankCollectionViewCell
             
@@ -136,19 +160,6 @@ extension TrendViewController: UICollectionViewDelegate, UICollectionViewDataSou
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if collectionView.tag != 2 {
-            let vc = ChartViewController()
-            let data = dataList[collectionView.tag][indexPath.item]
-            switch data {
-            case is Market:
-                vc.viewModel.inputCoinID.value = (data as! Market).id
-            case is Trend_Item:
-                vc.viewModel.inputCoinID.value = (data as! Trend_Item).item.id
-            default:
-                return
-            }
-            transition(viewController: vc, style: .push)
-        }
-
+        viewModel.inputCheckedCollectionViewTag.value = (collectionView.tag, indexPath)
     }
 }
