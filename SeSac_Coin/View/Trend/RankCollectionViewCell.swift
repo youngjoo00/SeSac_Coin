@@ -118,7 +118,8 @@ extension RankCollectionViewCell {
         
         titleLabel.text = data.name
         subTitleLabel.text = data.symbol
-        priceLabel.text = data.priceData.price.htmlEscaped
+//        priceLabel.text = data.priceData.price.htmlEscaped
+        priceLabel.text = data.priceData.price.description
         percentageLabel.updatePercentage(data.priceData.price_change_percentage_24h.krw)
     }
     

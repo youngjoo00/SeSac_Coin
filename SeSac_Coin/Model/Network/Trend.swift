@@ -33,7 +33,7 @@ struct Trend_Item_Coin: Decodable {
 }
 
 struct Trend_Item_Coin_Price: Decodable {
-    let price: String
+    let price: Double
     let price_change_percentage_24h: Trend_Item_Coin_Price_KRW
 }
 

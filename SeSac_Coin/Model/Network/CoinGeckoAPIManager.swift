@@ -33,6 +33,7 @@ final class CoinGeckoAPIManager {
                         completionHandler(.failure(.noData))
                     } else {
                         print("디코딩 실패")
+                        print(fail)
                         completionHandler(.failure(.invalidData))
                     }
                 default:
@@ -40,6 +41,35 @@ final class CoinGeckoAPIManager {
                     completionHandler(.failure(.failedRequest))
                 }
             }
+        }
+    }
+    
+    // 알라모파이어 통신은 이렇게 하네??
+    func callAsyncAwaitRequest<T: Decodable> (type: T.Type, api: CoinGeckoAPI) async throws -> T {
+        do {
+            let request = AF.request(api.endPoint,
+                                     parameters: api.parameter,
+                                     encoding: URLEncoding(destination: .queryString))
+            
+            let response = try await request.validate(statusCode: 200..<300).serializingDecodable(T.self).value
+            
+            return response
+        } catch {
+            if let afError = error.asAFError {
+                switch afError {
+                case .responseValidationFailed:
+                    throw ErrorStatus.failedRequest
+                case .responseSerializationFailed(let reason):
+                    if case .inputDataNilOrZeroLength = reason {
+                        throw ErrorStatus.noData
+                    } else {
+                        throw ErrorStatus.invalidData
+                    }
+                default:
+                    throw ErrorStatus.failedRequest
+                }
+            }
+            throw ErrorStatus.failedRequest
         }
     }
     

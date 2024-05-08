@@ -6,15 +6,13 @@
 //
 
 import UIKit
-import Toast
 
 class BaseViewController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         view.backgroundColor = .white
-        self.navigationController?.navigationBar.tintColor = .sesacPuple
         self.navigationController?.navigationBar.topItem?.title = ""
     }
 
@@ -35,10 +33,6 @@ class BaseViewController: UIViewController {
     }
     
     func showToast(message: String) {
-        var style = ToastStyle()
-        style.backgroundColor = .black
-        style.messageColor = .white
-        self.view.makeToast(message, duration: 2.5, position: .center, style: style)
+        
     }
-    
 }

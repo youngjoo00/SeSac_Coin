@@ -100,6 +100,23 @@ extension TrendViewModel {
         }
         
         group.enter()
+        Task {
+            do {
+                let data = try await CoinGeckoAPIManager.shared.callAsyncAwaitRequest(type: Trend.self, api: .trend)
+                print("되는건가!?", data)
+                
+                let coinData = data.coins.sorted(by: {
+                    $0.item.rank < $1.item.rank
+                })
+                // 사이드이펙트를 막아버리네요,,
+//                coins = coinData
+//                nfts = data.nfts
+                // 아 여기서 쓰이는게 이제 액터군요,,
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        
         CoinGeckoAPIManager.shared.callRequest(type: Trend.self, api: .trend) { result in
             switch result {
             case .success(let data):
